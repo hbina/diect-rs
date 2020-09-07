@@ -4,6 +4,7 @@ use crate::persistent::persistent_value::PersistentStorageValueProxy;
 use chrono::Duration as ChronoDuration;
 use chrono::{NaiveDateTime, Utc};
 // use num_traits::cast::ToPrimitive;
+use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::ops::Add;
 use uuid::Uuid;
@@ -17,11 +18,7 @@ pub struct Duration {
 
 // FIXME: Replace with `num_traits` once you have internet.
 fn convert_to_i64(s: u64) -> Option<i64> {
-    if s < 100000 {
-        Some(s as i64)
-    } else {
-        None
-    }
+    s.to_i64()
 }
 
 impl Duration {
