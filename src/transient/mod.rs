@@ -3,7 +3,7 @@ use actix_web::web;
 pub mod error;
 mod form;
 mod routes;
-pub mod transient_dictionary;
+pub mod transient_value;
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(routes::get_transient_value);
