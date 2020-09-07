@@ -1,4 +1,4 @@
-use crate::transient::{TransientValueDoesNotExistError, TransientValueExistsError};
+use crate::transient::error::{TransientValueDoesNotExistError, TransientValueExistsError};
 
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
