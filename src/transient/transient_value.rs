@@ -1,4 +1,4 @@
-use crate::duration::duration::Duration;
+use crate::duration::Duration;
 use crate::error::ApiError;
 use crate::transient::error::{TransientValueDoesNotExistError, TransientValueExistsError};
 use crate::transient::form::{
