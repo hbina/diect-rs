@@ -88,18 +88,14 @@ impl TransientDictionary {
         if self.map.contains_key(&request.value) {
             Err(ApiError::from(ValueExistsError::new(request.value)))
         } else {
-            let result = self.insert_value_unchecked(request);
+            let duration = Duration::create_duration_seconds(request.duration);
+            let result = self.map.entry(request.value).or_insert(duration).clone();
             Ok(TransientValueSubmitResponse {
                 id: result.id,
                 begin: result.begin,
                 end: result.end,
             })
         }
-    }
-
-    fn insert_value_unchecked(&mut self, request: TransientValueSubmitRequest) -> Duration {
-        let duration = Duration::create_duration_seconds(request.duration);
-        self.map.entry(request.value).or_insert(duration).clone()
     }
 }
 
@@ -146,9 +142,23 @@ async fn submit_transient_value(
     Ok(HttpResponse::Ok().json(storage.insert_value(request)?))
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct TransientCleanupResponse {
+    amount_cleaned_up: usize,
+}
+
 #[post("/transient/cleanup")]
-async fn cleanup_transient_storage() -> Result<HttpResponse, ApiError> {
-    Ok(HttpResponse::Ok().finish())
+async fn cleanup_transient_storage(
+    storage: web::Data<Mutex<TransientDictionary>>,
+) -> Result<HttpResponse, ApiError> {
+    let mut storage = storage.lock().unwrap();
+    let now = Utc::now().naive_utc();
+    let len_before = storage.map.len();
+    storage.map.retain(|_, y| y.begin > now);
+    let len_after = storage.map.len();
+    Ok(HttpResponse::Ok().json(TransientCleanupResponse {
+        amount_cleaned_up: len_before - len_after,
+    }))
 }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
