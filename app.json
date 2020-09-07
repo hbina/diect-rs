@@ -1,0 +1,11 @@
+{
+  "name": "diect-rs",
+  "description": "Redis-like dictionary containing values that will die(expire).",
+  "repository": "https://github.com/hbina/diect-rs",
+  "success_url": "/",
+  "keywords": ["rust", "actix", "english"],
+  "website": "https://github.com/hbina/diect-rs",
+  "env": {
+    "BUILDPACK_URL": "https://github.com/emk/heroku-buildpack-rust.git"
+  }
+}
