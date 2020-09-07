@@ -3,6 +3,6 @@ table! {
         id -> Uuid,
         value_text -> Text,
         date_begin -> Timestamp,
-        date_end -> Nullable<Timestamp>,
+        date_end -> Timestamp,
     }
 }

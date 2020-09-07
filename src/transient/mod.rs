@@ -1,4 +1,6 @@
+use crate::duration::Duration;
 use crate::error::ApiError;
+
 use actix_web::{get, post, web, HttpResponse};
 use chrono::Duration as ChronoDuration;
 use chrono::{NaiveDateTime, Utc};
@@ -8,55 +10,27 @@ use std::ops::Add;
 use std::sync::Mutex;
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-struct Duration {
-    id: Uuid,
-    begin: NaiveDateTime,
-    end: NaiveDateTime,
-}
-
-impl Duration {
-    pub fn create_duration_seconds(s: u64) -> Duration {
-        // TODO :: This should be checked. Why the fuck are you attempting to make something last
-        // longer than the universe?
-        let s = s as i64;
-        let now = Utc::now().naive_utc();
-        let end = now.add(ChronoDuration::seconds(s));
-        Duration {
-            id: Uuid::new_v4(),
-            begin: now,
-            end,
-        }
-    }
-
-    // TODO :: Also implement the other stuffs...
-
-    fn valid(&self, time: NaiveDateTime) -> bool {
-        time > self.begin && time < self.end
-    }
-}
-
 pub struct TransientDictionary {
     map: HashMap<String, Duration>,
 }
 
-pub struct ValueExistsError {
+pub struct TransientValueExistsError {
     pub value: String,
 }
 
-impl ValueExistsError {
-    pub fn new(value: String) -> ValueExistsError {
-        ValueExistsError { value }
+impl TransientValueExistsError {
+    pub fn new(value: String) -> TransientValueExistsError {
+        TransientValueExistsError { value }
     }
 }
 
-pub struct ValueDoesNotExistError {
+pub struct TransientValueDoesNotExistError {
     pub value: String,
 }
 
-impl ValueDoesNotExistError {
-    pub fn new(value: String) -> ValueDoesNotExistError {
-        ValueDoesNotExistError { value }
+impl TransientValueDoesNotExistError {
+    pub fn new(value: String) -> TransientValueDoesNotExistError {
+        TransientValueDoesNotExistError { value }
     }
 }
 
@@ -77,7 +51,9 @@ impl TransientDictionary {
                 valid: key.valid(now),
             })
         } else {
-            Err(ApiError::from(ValueDoesNotExistError::new(request.value)))
+            Err(ApiError::from(TransientValueDoesNotExistError::new(
+                request.value,
+            )))
         }
     }
 
@@ -86,7 +62,9 @@ impl TransientDictionary {
         request: TransientValueSubmitRequest,
     ) -> Result<TransientValueSubmitResponse, ApiError> {
         if self.map.contains_key(&request.value) {
-            Err(ApiError::from(ValueExistsError::new(request.value)))
+            Err(ApiError::from(TransientValueExistsError::new(
+                request.value,
+            )))
         } else {
             let duration = Duration::create_duration_seconds(request.duration);
             let result = self.map.entry(request.value).or_insert(duration).clone();
@@ -121,15 +99,15 @@ async fn get_transient_value(
 
 #[derive(Serialize, Deserialize, Debug)]
 struct TransientValueSubmitRequest {
-    value: String,
-    duration: u64,
+    pub value: String,
+    pub duration: u64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct TransientValueSubmitResponse {
-    id: Uuid,
-    begin: NaiveDateTime,
-    end: NaiveDateTime,
+    pub id: Uuid,
+    pub begin: NaiveDateTime,
+    pub end: NaiveDateTime,
 }
 
 #[post("/transient/submit")]
@@ -154,7 +132,7 @@ async fn cleanup_transient_storage(
     let mut storage = storage.lock().unwrap();
     let now = Utc::now().naive_utc();
     let len_before = storage.map.len();
-    storage.map.retain(|_, y| y.begin > now);
+    storage.map.retain(|_, y| y.should_be_cleaned_up(now));
     let len_after = storage.map.len();
     Ok(HttpResponse::Ok().json(TransientCleanupResponse {
         amount_cleaned_up: len_before - len_after,

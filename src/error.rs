@@ -1,4 +1,4 @@
-use crate::transient::{ValueDoesNotExistError, ValueExistsError};
+use crate::transient::{TransientValueDoesNotExistError, TransientValueExistsError};
 
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
@@ -28,8 +28,8 @@ impl fmt::Display for ApiError {
     }
 }
 
-impl From<ValueExistsError> for ApiError {
-    fn from(from: ValueExistsError) -> Self {
+impl From<TransientValueExistsError> for ApiError {
+    fn from(from: TransientValueExistsError) -> Self {
         ApiError {
             status_code: 400,
             message: format!(
@@ -40,8 +40,8 @@ impl From<ValueExistsError> for ApiError {
     }
 }
 
-impl From<ValueDoesNotExistError> for ApiError {
-    fn from(from: ValueDoesNotExistError) -> Self {
+impl From<TransientValueDoesNotExistError> for ApiError {
+    fn from(from: TransientValueDoesNotExistError) -> Self {
         ApiError {
             status_code: 400,
             message: format!(
