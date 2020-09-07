@@ -1,5 +1,6 @@
 use crate::transient::error::{TransientValueDoesNotExistError, TransientValueExistsError};
 
+use crate::duration::error::InvalidDurationError;
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
 use diesel::result::Error as DieselError;
@@ -35,6 +36,21 @@ impl From<TransientValueExistsError> for ApiError {
             message: format!(
                 "Attempting to insert the value {} when it already exists in the transient storage.",
                 from.value
+            ),
+        }
+    }
+}
+
+impl From<InvalidDurationError> for ApiError {
+    fn from(from: InvalidDurationError) -> Self {
+        ApiError {
+            status_code: 400,
+            message: format!(
+                r#"
+                Attempting to create an unsupported duration of {} seconds.
+                This problem originates from the fact that we are unable to cast this `u64` to
+                `i64`."#,
+                from.duration
             ),
         }
     }

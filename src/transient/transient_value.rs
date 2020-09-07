@@ -1,4 +1,4 @@
-use crate::duration::Duration;
+use crate::duration::duration::Duration;
 use crate::error::ApiError;
 use crate::transient::error::{TransientValueDoesNotExistError, TransientValueExistsError};
 use crate::transient::form::{
@@ -47,7 +47,7 @@ impl TransientDictionary {
                 request.value,
             )))
         } else {
-            let duration = Duration::create_duration_seconds(request.duration);
+            let duration = Duration::create_duration_seconds(request.duration)?;
             let result = self.map.entry(request.value).or_insert(duration).clone();
             Ok(TransientValueSubmitResponse {
                 id: result.id,

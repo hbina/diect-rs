@@ -1,5 +1,5 @@
 use crate::db;
-use crate::duration::Duration;
+use crate::duration::duration::Duration;
 use crate::error::ApiError;
 use crate::persistent::form::{
     PersistentValueSubmitRequest, PersistentValueSubmitResponse, PersistentValueValidityRequest,

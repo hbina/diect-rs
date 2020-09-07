@@ -1,7 +1,9 @@
+use crate::duration::error::InvalidDurationError;
 use crate::persistent::persistent_value::PersistentStorageValueProxy;
 
 use chrono::Duration as ChronoDuration;
 use chrono::{NaiveDateTime, Utc};
+// use num_traits::cast::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::ops::Add;
 use uuid::Uuid;
@@ -13,21 +15,29 @@ pub struct Duration {
     pub end: NaiveDateTime,
 }
 
+// FIXME: Replace with `num_traits` once you have internet.
+fn convert_to_i64(s: u64) -> Option<i64> {
+    if s > u64::MAX / 2 {
+        Some(s as i64)
+    } else {
+        None
+    }
+}
+
 impl Duration {
-    pub fn create_duration_seconds(s: u64) -> Duration {
-        // TODO :: This should be checked. Why the fuck are you attempting to make something last
-        // longer than the universe?
-        let s = s as i64;
-        let now = Utc::now().naive_utc();
-        let end = now.add(ChronoDuration::seconds(s));
-        Duration {
-            id: Uuid::new_v4(),
-            begin: now,
-            end,
+    pub fn create_duration_seconds(s: u64) -> Result<Duration, InvalidDurationError> {
+        if let Some(s) = convert_to_i64(s) {
+            let now = Utc::now().naive_utc();
+            let end = now.add(ChronoDuration::seconds(s));
+            Ok(Duration {
+                id: Uuid::new_v4(),
+                begin: now,
+                end,
+            })
+        } else {
+            Err(InvalidDurationError { duration: s })
         }
     }
-
-    // TODO :: Also implement the other stuffs...
 
     pub fn valid(&self, time: NaiveDateTime) -> bool {
         time > self.begin && time < self.end

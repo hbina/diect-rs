@@ -8,7 +8,7 @@ There are two types of storage supported.
 
 ## Transient
 
-In this mode, the service will store the values in the RAM.
+In this mode, the service will store the values in RAM.
 Therefore, it will be gone if the service restarts or whatever.
 
 ## Persistent
@@ -26,3 +26,4 @@ Use this command to watch,
 ## TODO
 
 1. Improve performance of queries by hashing the values instead of using raw `String`s.
+2. Add other features like `BloomFilters` and generally try to achieve parity with `Redis`.
