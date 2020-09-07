@@ -17,7 +17,7 @@ pub struct Duration {
 
 // FIXME: Replace with `num_traits` once you have internet.
 fn convert_to_i64(s: u64) -> Option<i64> {
-    if s > u64::MAX / 2 {
+    if s < 100000 {
         Some(s as i64)
     } else {
         None

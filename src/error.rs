@@ -1,6 +1,6 @@
+use crate::duration::error::InvalidDurationError;
 use crate::transient::error::{TransientValueDoesNotExistError, TransientValueExistsError};
 
-use crate::duration::error::InvalidDurationError;
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
 use diesel::result::Error as DieselError;
@@ -46,10 +46,7 @@ impl From<InvalidDurationError> for ApiError {
         ApiError {
             status_code: 400,
             message: format!(
-                r#"
-                Attempting to create an unsupported duration of {} seconds.
-                This problem originates from the fact that we are unable to cast this `u64` to
-                `i64`."#,
+                "Attempting to create an unsupported duration of {} seconds. This problem originates from the fact that we are unable to cast this `u64` to `i64`.",
                 from.duration
             ),
         }

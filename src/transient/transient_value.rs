@@ -32,9 +32,9 @@ impl TransientDictionary {
                 valid: key.valid(now),
             })
         } else {
-            Err(ApiError::from(TransientValueDoesNotExistError::new(
-                request.value,
-            )))
+            Err(ApiError::from(TransientValueDoesNotExistError {
+                value: request.value,
+            }))
         }
     }
 
@@ -43,9 +43,9 @@ impl TransientDictionary {
         request: TransientValueSubmitRequest,
     ) -> Result<TransientValueSubmitResponse, ApiError> {
         if self.map.contains_key(&request.value) {
-            Err(ApiError::from(TransientValueExistsError::new(
-                request.value,
-            )))
+            Err(ApiError::from(TransientValueExistsError {
+                value: request.value,
+            }))
         } else {
             let duration = Duration::create_duration_seconds(request.duration)?;
             let result = self.map.entry(request.value).or_insert(duration).clone();
