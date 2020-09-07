@@ -13,7 +13,7 @@ mod schema;
 mod transient;
 
 use crate::error::ApiError;
-use crate::transient::TransientDictionary;
+use crate::transient::transient_dictionary::TransientDictionary;
 use actix_web::{get, App, HttpResponse, HttpServer};
 use dotenv::dotenv;
 use listenfd::ListenFd;
