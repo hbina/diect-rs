@@ -1,11 +1,9 @@
-use crate::persistent::PersistentStorageValueProxy;
+use crate::persistent::persistent_value::PersistentStorageValueProxy;
 
 use chrono::Duration as ChronoDuration;
 use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
-
 use std::ops::Add;
-
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

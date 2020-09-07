@@ -1,21 +1,15 @@
-use crate::duration::Duration;
 use crate::error::ApiError;
-
 use crate::transient::form::{
     TransientCleanupResponse, TransientValueSubmitRequest, TransientValueValidityRequest,
 };
 use crate::transient::transient_dictionary::TransientDictionary;
+
 use actix_web::{get, post, web, HttpResponse};
-use chrono::Duration as ChronoDuration;
-use chrono::{NaiveDateTime, Utc};
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::ops::Add;
+use chrono::Utc;
 use std::sync::Mutex;
-use uuid::Uuid;
 
 #[get("/transient/get")]
-async fn get_transient_value(
+pub async fn get_transient_value(
     get_request: web::Query<TransientValueValidityRequest>,
     storage: web::Data<Mutex<TransientDictionary>>,
 ) -> Result<HttpResponse, ApiError> {
@@ -25,7 +19,7 @@ async fn get_transient_value(
 }
 
 #[post("/transient/submit")]
-async fn submit_transient_value(
+pub async fn submit_transient_value(
     submit_request: web::Json<TransientValueSubmitRequest>,
     storage: web::Data<Mutex<TransientDictionary>>,
 ) -> Result<HttpResponse, ApiError> {
@@ -35,7 +29,7 @@ async fn submit_transient_value(
 }
 
 #[post("/transient/cleanup")]
-async fn cleanup_transient_storage(
+pub async fn cleanup_transient_storage(
     storage: web::Data<Mutex<TransientDictionary>>,
 ) -> Result<HttpResponse, ApiError> {
     let mut storage = storage.lock().unwrap();

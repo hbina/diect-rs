@@ -1,19 +1,15 @@
 use crate::duration::Duration;
 use crate::error::ApiError;
-
 use crate::transient::error::{TransientValueDoesNotExistError, TransientValueExistsError};
 use crate::transient::form::{
     TransientValueSubmitRequest, TransientValueSubmitResponse, TransientValueValidityRequest,
     TransientValueValidityResponse,
 };
-use actix_web::{get, post, web, HttpResponse};
-use chrono::Duration as ChronoDuration;
-use chrono::{NaiveDateTime, Utc};
-use serde::{Deserialize, Serialize};
+
+use actix_web::web;
+use chrono::Utc;
 use std::collections::HashMap;
-use std::ops::Add;
 use std::sync::Mutex;
-use uuid::Uuid;
 
 pub struct TransientDictionary {
     pub map: HashMap<String, Duration>,
