@@ -10,9 +10,10 @@ use actix_web::web;
 use chrono::Utc;
 use std::collections::HashMap;
 use std::sync::Mutex;
+use uuid::Uuid;
 
 pub struct TransientDictionary {
-    pub map: HashMap<String, Duration>,
+    pub map: HashMap<Uuid, Duration>,
 }
 
 impl TransientDictionary {
@@ -26,14 +27,14 @@ impl TransientDictionary {
         &self,
         request: TransientValueValidityRequest,
     ) -> Result<TransientValueValidityResponse, ApiError> {
-        if let Some(key) = self.map.get(&request.value) {
+        if let Some(key) = self.map.get(&request.id) {
             let now = Utc::now().naive_utc();
             Ok(TransientValueValidityResponse {
                 valid: key.valid(now),
             })
         } else {
             Err(ApiError::from(TransientValueDoesNotExistError {
-                value: request.value,
+                id: request.id,
             }))
         }
     }
@@ -42,15 +43,14 @@ impl TransientDictionary {
         &mut self,
         request: TransientValueSubmitRequest,
     ) -> Result<TransientValueSubmitResponse, ApiError> {
-        if self.map.contains_key(&request.value) {
-            Err(ApiError::from(TransientValueExistsError {
-                value: request.value,
-            }))
+        let id = Uuid::new_v4();
+        if self.map.contains_key(&id) {
+            Err(ApiError::from(TransientValueExistsError { id }))
         } else {
             let duration = Duration::create_duration_seconds(request.duration)?;
-            let result = self.map.entry(request.value).or_insert(duration).clone();
+            let result = self.map.entry(id).or_insert(duration);
             Ok(TransientValueSubmitResponse {
-                id: result.id,
+                id,
                 begin: result.begin,
                 end: result.end,
             })

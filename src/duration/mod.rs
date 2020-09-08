@@ -7,30 +7,19 @@ use chrono::{NaiveDateTime, Utc};
 use num_traits::ToPrimitive;
 use serde::{Deserialize, Serialize};
 use std::ops::Add;
-use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Duration {
-    pub id: Uuid,
     pub begin: NaiveDateTime,
     pub end: NaiveDateTime,
 }
 
-// FIXME: Replace with `num_traits` once you have internet.
-fn convert_to_i64(s: u64) -> Option<i64> {
-    s.to_i64()
-}
-
 impl Duration {
     pub fn create_duration_seconds(s: u64) -> Result<Duration, InvalidDurationError> {
-        if let Some(s) = convert_to_i64(s) {
+        if let Some(s) = s.to_i64() {
             let now = Utc::now().naive_utc();
             let end = now.add(ChronoDuration::seconds(s));
-            Ok(Duration {
-                id: Uuid::new_v4(),
-                begin: now,
-                end,
-            })
+            Ok(Duration { begin: now, end })
         } else {
             Err(InvalidDurationError { duration: s })
         }
@@ -48,7 +37,6 @@ impl Duration {
 impl From<PersistentStorageValueProxy> for Duration {
     fn from(from: PersistentStorageValueProxy) -> Duration {
         Duration {
-            id: from.id,
             begin: from.date_begin,
             end: from.date_end,
         }

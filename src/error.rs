@@ -34,8 +34,8 @@ impl From<TransientValueExistsError> for ApiError {
         ApiError {
             status_code: 400,
             message: format!(
-                "Attempting to insert the value {} when it already exists in the transient storage.",
-                from.value
+                "Attempting to insert the id {} when it already exists in the transient storage.",
+                from.id
             ),
         }
     }
@@ -58,8 +58,8 @@ impl From<TransientValueDoesNotExistError> for ApiError {
         ApiError {
             status_code: 400,
             message: format!(
-                "Attempting to know if the value {} is valid when it does not exist in the storage.",
-                from.value
+                "Attempting to know if the id {} is valid when it does not exist in the transient storage.",
+                from.id
             ),
         }
     }

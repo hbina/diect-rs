@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct PersistentValueValidityRequest {
-    pub value: String,
+    pub id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -14,7 +14,6 @@ pub struct PersistentValueValidityResponse {
 
 #[derive(Serialize, Deserialize)]
 pub struct PersistentValueSubmitRequest {
-    pub value: String,
     pub duration: u64,
 }
 

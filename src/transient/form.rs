@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TransientValueValidityRequest {
-    pub value: String,
+    pub id: Uuid,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -14,7 +14,6 @@ pub struct TransientValueValidityResponse {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TransientValueSubmitRequest {
-    pub value: String,
     pub duration: u64,
 }
 

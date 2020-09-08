@@ -1,7 +1,9 @@
+use uuid::Uuid;
+
 pub struct TransientValueExistsError {
-    pub value: String,
+    pub id: Uuid,
 }
 
 pub struct TransientValueDoesNotExistError {
-    pub value: String,
+    pub id: Uuid,
 }

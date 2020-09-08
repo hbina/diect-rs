@@ -6,7 +6,6 @@ use crate::persistent::form::{
     PersistentValueValidityResponse,
 };
 use crate::schema::persistent_storage;
-use crate::schema::persistent_storage::value_text;
 
 use chrono::Duration as ChronoDuration;
 use chrono::{NaiveDateTime, Utc};
@@ -19,7 +18,6 @@ use uuid::Uuid;
 #[table_name = "persistent_storage"]
 pub struct PersistentStorageValueProxy {
     pub id: Uuid,
-    pub value_text: String,
     pub date_begin: NaiveDateTime,
     pub date_end: NaiveDateTime,
 }
@@ -29,7 +27,6 @@ impl From<PersistentValueSubmitRequest> for PersistentStorageValueProxy {
         let now = Utc::now().naive_utc();
         PersistentStorageValueProxy {
             id: Uuid::new_v4(),
-            value_text: from.value,
             date_begin: now,
             date_end: now.add(ChronoDuration::seconds(from.duration as i64)),
         }
@@ -39,7 +36,6 @@ impl From<PersistentValueSubmitRequest> for PersistentStorageValueProxy {
 #[derive(Serialize, Deserialize)]
 pub struct PersistentStorageValue {
     pub id: Uuid,
-    pub value: String,
     pub begin: NaiveDateTime,
     pub end: NaiveDateTime,
 }
@@ -48,7 +44,6 @@ impl From<PersistentStorageValueProxy> for PersistentStorageValue {
     fn from(from: PersistentStorageValueProxy) -> PersistentStorageValue {
         PersistentStorageValue {
             id: from.id,
-            value: from.value_text,
             begin: from.date_begin,
             end: from.date_end,
         }
@@ -62,7 +57,7 @@ impl PersistentStorageValueProxy {
         let conn = db::connection()?;
         let duration = Duration::from(
             persistent_storage::table
-                .filter(value_text.eq(validity_request.value))
+                .filter(persistent_storage::id.eq(validity_request.id))
                 .first::<PersistentStorageValueProxy>(&conn)?,
         );
         let now = Utc::now().naive_utc();
@@ -79,7 +74,6 @@ impl PersistentStorageValueProxy {
         let result = diesel::insert_into(persistent_storage::table)
             .values((
                 persistent_storage::id.eq(submission.id),
-                persistent_storage::value_text.eq(submission.value_text),
                 persistent_storage::date_begin.eq(submission.date_begin),
                 persistent_storage::date_end.eq(submission.date_end),
             ))
